@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -5,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SeriesAuthZAuthN.IdentityAuthentication.Models;
+using System;
 
 namespace SeriesAuthZAuthN.IdentityAuthentication
 {
@@ -24,7 +27,31 @@ namespace SeriesAuthZAuthN.IdentityAuthentication
             services.AddRazorPages();
 
             services.AddDbContext<ApplicationDbContext>(opt => opt.UseInMemoryDatabase("InMemoryIdentity"));
-            services.AddDefaultIdentity<IdentityUser>()
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, opt =>
+                    {
+                        opt.Cookie.Name = "identity cookie yeah";
+                    });
+
+            services.AddAuthorization(opt =>
+            {
+                opt.AddPolicy("Administrator", p => p.RequireRole("Admin"));
+            });
+
+            services.AddIdentity<ApplicationUser, IdentityRole>(opt =>
+                    {
+                        opt.Password.RequireDigit = false;
+                        opt.Password.RequiredLength = 6;
+                        opt.Password.RequireLowercase = false;
+                        opt.Password.RequireNonAlphanumeric = false;
+                        opt.Password.RequireUppercase = false;
+                        opt.SignIn.RequireConfirmedAccount = false;
+
+                        opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromSeconds(15);  // Caso erre um número especifico de vezes a senha
+                    })
+                    .AddDefaultUI()
+                    .AddDefaultTokenProviders()
                     .AddEntityFrameworkStores<ApplicationDbContext>();
         }
 

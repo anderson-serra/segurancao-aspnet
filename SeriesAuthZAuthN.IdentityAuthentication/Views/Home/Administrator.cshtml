@@ -4,11 +4,11 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome!</h1>
-    <p>Bem vindo usuário autenticado</p>
+    <p>Bem vindo usuário Administrator</p>
 </div>
 
 <ul>
-    @foreach (var claim in User.Claims)
+    @foreach(var claim in  User.Claims)
     {
         <li>@claim.Type | @claim.Value</li>
     }
